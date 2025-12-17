@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☕ Coffee Shop Finance Pro</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- ApexCharts for advanced charts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        /* Custom coffee theme colors */
+        :root {
+            --espresso: #3C2A21;
+            --gold: #D4A574;
+            --latte: #E5D3B3;
+            --dark-green: #1A3C40;
+            --light-cream: #F8F4E9;
+            --arabic-gold: #C19A6B;
+        }
+        
+        .dark {
+            --espresso: #1E120C;
+            --gold: #B08968;
+            --latte: #3C2A21;
+            --dark-green: #0F2C2F;
+            --light-cream: #2D2420;
+        }
+        
+        /* Smooth transitions */
+        * {
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--light-cream);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 4px;
+        }
+        
+        .dark ::-webkit-scrollbar-track {
+            background: #2D2420;
+        }
+        
+        /* RTL specific styles */
+        [dir="rtl"] .ltr-only {
+            display: none !important;
+        }
+        
+        [dir="ltr"] .rtl-only {
+            display: none !important;
+        }
+        
+        /* Button tap effect */
+        .tap-effect:active {
+            transform: scale(0.97);
+        }
+        
+        /* Mobile-first touch targets */
+        .touch-button {
+            min-height: 44px;
+            min-width: 44px;
+        }
+        
+        /* Fade animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Slide animations for RTL/LTR switching */
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        [dir="rtl"] .animate-slide {
+            animation: slideInRight 0.3s ease-out;
+        }
+        
+        [dir="ltr"] .animate-slide {
+            animation: slideInLeft 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-[#F8F4E9] text-gray-800 dark:bg-[#2D2420] dark:text-[#E5D3B3] transition-colors duration-300 min-h-screen">
+    <!-- Language and Theme Toggle Bar -->
+    <div class="bg-gradient-to-r from-[#3C2A21] to-[#1A3C40] text-white p-4 shadow-xl">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                <div class="bg-[#D4A574] p-2 rounded-lg">
+                    <i data-lucide="coffee" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold ltr-only">Coffee Shop Finance Pro</h1>
+                    <h1 class="text-xl font-bold rtl-only">برنامج مقهى المال المحترف</h1>
+                    <p class="text-xs opacity-80 ltr-only">Track every rial, grow your business</p>
+                    <p class="text-xs opacity-80 rtl-only">تتبع كل ريال، نمِّ عملك</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                <button id="themeToggle" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg touch-button">
+                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                </button>
+                <button id="languageToggle" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg font-medium touch-button">
+                    <span class="ltr-only">عربي</span>
+                    <span class="rtl-only">EN</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="p-4">
+        <!-- Balance Card -->
+        <div class="bg-gradient-to-r from-[#D4A574] to-[#C19A6B] text-white rounded-2xl p-6 shadow-lg mb-4">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm opacity-90 ltr-only">Current Balance</p>
+                    <p class="text-sm opacity-90 rtl-only">الرصيد الحالي</p>
+                    <p class="text-4xl font-bold mt-1" id="currentBalance">0.000 <span class="text-2xl">OMR</span></p>
+                    <p class="text-sm mt-2 opacity-90 ltr-only">Updated in real-time</p>
+                    <p class="text-sm mt-2 opacity-90 rtl-only">تم التحديث في الوقت الحقيقي</p>
+                </div>
+                <div class="bg-white/20 p-3 rounded-xl">
+                    <i data-lucide="wallet" class="w-8 h-8"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Income & Expense Cards -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-white dark:bg-[#3C2A21] rounded-xl p-4 shadow">
+                <div class="flex items-center">
+                    <div class="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg mr-3">
+                        <i data-lucide="trending-up" class="w-5 h-5 text-green-600 dark:text-green-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 ltr-only">Total Income</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 rtl-only">إجمالي الدخل</p>
+                        <p class="text-xl font-bold text-green-600 dark:text-green-400" id="totalIncome">0.000 OMR</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-[#3C2A21] rounded-xl p-4 shadow">
+                <div class="flex items-center">
+                    <div class="bg-red-100 dark:bg-red-900/30 p-2 rounded-lg mr-3">
+                        <i data-lucide="trending-down" class="w-5 h-5 text-red-600 dark:text-red-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 ltr-only">Total Expenses</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 rtl-only">إجمالي المصروفات</p>
+                        <p class="text-xl font-bold text-red-600 dark:text-red-400" id="totalExpenses">0.000 OMR</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Progress -->
+        <div class="bg-white dark:bg-[#3C2A21] rounded-xl p-4 shadow mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold ltr-only">Today's Progress</h3>
+                <h3 class="font-bold rtl-only">تقدم اليوم</h3>
+                <span class="text-sm font-medium text-[#D4A574]" id="dailyProgressText">0/50 OMR</span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
+                <div id="dailyProgressBar" class="bg-gradient-to-r from-[#D4A574] to-[#3C2A21] h-4 rounded-full transition-all duration-700" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
+                <span>0 OMR</span>
+                <span class="ltr-only">Daily Goal: 50 OMR</span>
+                <span class="rtl-only">الهدف اليومي: 50 ريال</span>
+            </div>
+        </div>
+
+        <!-- Quick Action Buttons -->
+        <div class="mb-6">
+            <h3 class="font-bold mb-3 ltr-only">Quick Actions</h3>
+            <h3 class="font-bold mb-3 rtl-only">إجراءات سريعة</h3>
+            <div class="grid grid-cols-2 gap-3">
+                <button id="newSaleBtn" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 rounded-xl shadow-lg touch-button flex items-center justify-center tap-effect">
+                    <i data-lucide="plus-circle" class="w-5 h-5 mr-2 ltr-only"></i>
+                    <i data-lucide="plus-circle" class="w-5 h-5 ml-2 rtl-only"></i>
+                    <span class="ltr-only">New Sale</span>
+                    <span class="rtl-only">بيع جديد</span>
+                </button>
+                <button id="newExpenseBtn" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-4 rounded-xl shadow-lg touch-button flex items-center justify-center tap-effect">
+                    <i data-lucide="minus-circle" class="w-5 h-5 mr-2 ltr-only"></i>
+                    <i data-lucide="minus-circle" class="w-5 h-5 ml-2 rtl-only"></i>
+                    <span class="ltr-only">New Expense</span>
+                    <span class="rtl-only">مصروف جديد</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Sale Presets -->
+        <div class="mb-6">
+            <h3 class="font-bold mb-3 ltr-only">Quick Sale Presets</h3>
+            <h3 class="font-bold mb-3 rtl-only">إعدادات البيع السريع</h3>
+            <div class="grid grid-cols-3 gap-2">
+                <button class="quick-sale-preset bg-gradient-to-r from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-900/10 border border-green-200 dark:border-green-800 hover:border-green-400 dark:hover:border-green-600 text-green-800 dark:text-green-300 py-3 rounded-lg touch-button tap-effect" data-amount="1.500">
+                    <div class="font-bold">1.500</div>
+                    <div class="text-xs">OMR</div>
+                </button>
+                <button class="quick-sale-preset bg-gradient-to-r from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-900/10 border border-green-200 dark:border-green-800 hover:border-green-400 dark:hover:border-green-600 text-green-800 dark:text-green-300 py-3 rounded-lg touch-button tap-effect" data-amount="2.000">
+                    <div class="font-bold">2.000</div>
+                    <div class="text-xs">OMR</div>
+                </button>
+                <button class="quick-sale-preset bg-gradient-to-r from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-900/10 border border-green-200 dark:border-green-800 hover:border-green-400 dark:hover:border-green-600 text-green-800 dark:text-green-300 py-3 rounded-lg touch-button tap-effect" data-amount="2.500">
+                    <div class="font-bold">2.500</div>
+                    <div class="text-xs">OMR</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="mb-6">
+            <div class="flex space-x-2 rtl:space-x-reverse mb-3">
+                <div class="flex-1 relative">
+                    <input type="text" id="searchInput" placeholder="Search transactions..." class="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#3C2A21] border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#D4A574] focus:border-transparent ltr-only" dir="ltr">
+                    <input type="text" id="searchInput" placeholder="ابحث في المعاملات..." class="w-full pr-10 pl-4 py-3 bg-white dark:bg-[#3C2A21] border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#D4A574] focus:border-transparent rtl-only" dir="rtl">
+                    <i data-lucide="search" class="w-5 h-5 absolute top-3.5 left-3 text-gray-400 ltr-only"></i>
+                    <i data-lucide="search" class="w-5 h-5 absolute top-3.5 right-3 text-gray-400 rtl-only"></i>
+                </div>
+                <select id="categoryFilter" class="bg-white dark:bg-[#3C2A21] border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#D4A574] focus:border-transparent touch-button">
+                    <option value="all" class="ltr-only">All Categories</option>
+                    <option value="all" class="rtl-only">كل الفئات</option>
+                    <option value="Sales" class="ltr-only">Sales</option>
+                    <option value="Sales" class="rtl-only">مبيعات</option>
+                    <option value="Coffee Beans" class="ltr-only">Coffee Beans</option>
+                    <option value="Coffee Beans" class="rtl-only">حبوب القهوة</option>
+                    <option value="Milk/Dairy" class="ltr-only">Milk/Dairy</option>
+                    <option value="Milk/Dairy" class="rtl-only">حليب/ألبان</option>
+                    <option value="Staff" class="ltr-only">Staff</option>
+                    <option value="Staff" class="rtl-only">الموظفين</option>
+                    <option value="Rent" class="ltr-only">Rent</option>
+                    <option value="Rent" class="rtl-only">الإيجار</option>
+                    <option value="Utilities" class="ltr-only">Utilities</option>
+                    <option value="Utilities" class="rtl-only">المرافق</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Transaction History Header -->
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg ltr-only">Transaction History</h3>
+            <h3 class="font-bold text-lg rtl-only">سجل المعاملات</h3>
+            <div class="flex space-x-2 rtl:space-x-reverse">
+                <button id="exportBtn" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 rounded-lg touch-button tap-effect flex items-center">
+                    <i data-lucide="download" class="w-4 h-4 mr-2 ltr-only"></i>
+                    <i data-lucide="download" class="w-4 h-4 ml-2 rtl-only"></i>
+                    <span class="ltr-only">Export</span>
+                    <span class="rtl-only">تصدير</span>
+                </button>
+                <button id="clearAllBtn" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 rounded-lg touch-button tap-effect flex items-center">
+                    <i data-lucide="trash-2" class="w-4 h-4 mr-2 ltr-only"></i>
+                    <i data-lucide="trash-2" class="w-4 h-4 ml-2 rtl-only"></i>
+                    <span class="ltr-only">Clear</span>
+                    <span class="rtl-only">مسح</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Transaction List -->
+        <div id="transactionList" class="space-y-3 max-h-80 overflow-y-auto">
+            <!-- Transactions will be dynamically added here -->
+            <div class="text-center py-8 text-gray-500 dark:text-gray-400" id="emptyState">
+                <i data-lucide="receipt" class="w-12 h-12 mx-auto mb-3 opacity-50"></i>
+                <p class="ltr-only">No transactions yet</p>
+                <p class="rtl-only">لا توجد معاملات بعد</p>
+                <p class="text-sm ltr-only">Add your first sale or expense</p>
+                <p class="text-sm rtl-only">أضف عملية البيع أو المصروف الأولى</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Transaction Modal -->
+    <div id="transactionModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-[#3C2A21] rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-fade-in">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold ltr-only" id="modalTitle">Add Transaction</h3>
+                    <h3 class="text-xl font-bold rtl-only" id="modalTitle">إضافة معاملة</h3>
+                    <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <form id="transactionForm">
+                    <!-- Transaction Type -->
+                    <div class="mb-6">
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" id="typeIncome" class="transaction-type-btn bg-gradient-to-r from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-900/10 border-2 border-green-300 dark:border-green-700 text-green-800 dark:text-green-300 py-4 rounded-xl font-medium touch-button tap-effect active">
+                                <i data-lucide="arrow-down-circle" class="w-5 h-5 inline mr-2 ltr-only"></i>
+                                <i data-lucide="arrow-down-circle" class="w-5 h-5 inline ml-2 rtl-only"></i>
+                                <span class="ltr-only">Income</span>
+                                <span class="rtl-only">دخل</span>
+                            </button>
+                            <button type="button" id="typeExpense" class="transaction-type-btn bg-gradient-to-r from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-900/10 border-2 border-gray-200 dark:border-gray-700 text-red-800 dark:text-red-300 py-4 rounded-xl font-medium touch-button tap-effect">
+                                <i data-lucide="arrow-up-circle" class="w-5 h-5 inline mr-2 ltr-only"></i>
+                                <i data-lucide="arrow-up-circle" class="w-5 h-5 inline ml-2 rtl-only"></i>
+                                <span class="ltr-only">Expense</span>
+                                <span class="rtl-only">مصروف</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Amount Input -->
+                    <div class="mb-6">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2 ltr-only" for="amount">
+                            Amount (OMR)
+                        </label>
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2 rtl-only" for="amount">
+                            المبلغ (ريال)
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 ltr:left-0 rtl:right-0 flex items-center px-3 pointer-events-none">
+                                <span class="text-gray-500">﷼</span>
+                            </div>
+                            <input type="number" step="0.001" min="0.001" id="amount" class="w-full ltr:pl-10 rtl:pr-10 px-4 py-3 bg-white dark:bg-[#2D2420] border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#D4A574] focus:border-transparent" placeholder="0.000" required dir="ltr">
+                            <div class="absolute inset-y-0 ltr:right-0 rtl:left-0 flex items-center px-3 pointer-events-none">
+                                <span class="text-gray-500">OMR</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Selection -->
+                    <div class="mb-6">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2 ltr-only" for="category">
+                            Category
+                        </label>
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2 rtl-only" for="category">
+                            الفئة
+                        </label>
+                        <select id="category" class="w-full px-4 py-3 bg-white dark:bg-[#2D2420] border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#D4A574] focus:border-transparent touch-button">
+                            <option value="Sales" class="ltr-only">Sales</option>
+                            <option value="Sales" class="rtl-only">مبيعات</option>
+                            <option value="Coffee Beans" class="ltr-only">Coffee Beans</option>
+                            <option value="Coffee Beans" class="rtl-only">حبوب القهوة</option>
+                            <option value="Milk/Dairy" class="ltr-only">Milk/Dairy</option>
+                            <option value="Milk/Dairy" class="rtl-only">حليب/ألبان</option>
+                            <option value="Staff" class="ltr-only">Staff</option>
+                            <option value="Staff" class="rtl-only">الموظفين</option>
+                            <option value="Rent" class="ltr-only">Rent</option>
+                            <option value="Rent" class="rtl-only">الإيجار</option>
+                            <option value="Utilities" class="ltr-only">Utilities</option>
+                            <option value="Utilities" class="rtl-only">المرافق</option>
+                        </select>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-8">
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2 ltr-only" for="description">
+                            Description (Optional)
+                        </label>
+                        <label class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2 rtl-only" for="description">
+                            الوصف (اختياري)
+                        </label>
+                        <textarea id="description" rows="3" class="w-full px-4 py-3 bg-white dark:bg-[#2D2420] border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#D4A574] focus:border-transparent" placeholder="Enter details..."></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-full bg-gradient-to-r from-[#D4A574] to-[#3C2A21] hover:from-[#C19A6B] hover:to-[#2D1E16] text-white font-bold py-4 rounded-xl shadow-lg touch-button tap-effect">
+                        <i data-lucide="check-circle" class="w-5 h-5 inline mr-2 ltr-only"></i>
+                        <i data-lucide="check-circle" class="w-5 h-5 inline ml-2 rtl-only"></i>
+                        <span class="ltr-only">Add Transaction</span>
+                        <span class="rtl-only">إضافة المعاملة</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button id="floatingActionBtn" class="fixed bottom-6 right-6 bg-gradient-to-r from-[#D4A574] to-[#3C2A21] text-white w-16 h-16 rounded-full shadow-2xl flex items-center justify-center touch-button tap-effect z-40 ltr-only">
+        <i data-lucide="plus" class="w-8 h-8"></i>
+    </button>
+    <button id="floatingActionBtn" class="fixed bottom-6 left-6 bg-gradient-to-r from-[#D4A574] to-[#3C2A21] text-white w-16 h-16 rounded-full shadow-2xl flex items-center justify-center touch-button tap-effect z-40 rtl-only">
+        <i data-lucide="plus" class="w-8 h-8"></i>
+    </button>
+
+    <script>
+        // Coffee Shop Finance Pro - Ultimate Version
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize variables
+            let transactions = JSON.parse(localStorage.getItem('coffeeShopTransactionsPro')) || [];
+            let isArabic = false;
+            let isDarkMode = localStorage.getItem('darkMode') === 'true';
+            let currentTransactionType = 'income';
+            
+            // DOM Elements
+            const currentBalanceEl = document.getElementById('currentBalance');
+            const totalIncomeEl = document.getElementById('totalIncome');
+            const totalExpensesEl = document.getElementById('totalExpenses');
+            const transactionListEl = document.getElementById('transactionList');
+            const emptyStateEl = document.getElementById('emptyState');
+            const dailyProgressBar = document.getElementById('dailyProgressBar');
+            const dailyProgressText = document.getElementById('dailyProgressText');
+            const transactionModal = document.getElementById('transactionModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const floatingActionBtn = document.getElementById('floatingActionBtn');
+            const themeToggle = document.getElementById('themeToggle');
+            const languageToggle = document.getElementById('languageToggle');
+            const searchInput = document.getElementById('searchInput');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const exportBtn = document.getElementById('exportBtn');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const transactionForm = document.getElementById('transactionForm');
+            
+            // Language dictionary
+            const translations = {
+                en: {
+                    appTitle: "Coffee Shop Finance Pro",
+                    appSubtitle: "Track every rial, grow your business",
+                    balance: "Current Balance",
+                    updated: "Updated in real-time",
+                    totalIncome: "Total Income",
+                    totalExpenses: "Total Expenses",
+                    todayProgress: "Today's Progress",
+                    dailyGoal: "Daily Goal: 50 OMR",
+                    quickActions: "Quick Actions",
+                    newSale: "New Sale",
+                    newExpense: "New Expense",
+                    quickSalePresets: "Quick Sale Presets",
+                    searchPlaceholder: "Search transactions...",
+                    allCategories: "All Categories",
+                    transactionHistory: "Transaction History",
+                    export: "Export",
+                    clear: "Clear",
+                    noTransactions: "No transactions yet",
+                    addFirst: "Add your first sale or expense",
+                    addTransaction: "Add Transaction",
+                    income: "Income",
+                    expense: "Expense",
+                    amount: "Amount (OMR)",
+                    category: "Category",
+                    description: "Description (Optional)",
+                    sales: "Sales",
+                    coffeeBeans: "Coffee Beans",
+                    milkDairy: "Milk/Dairy",
+                    staff: "Staff",
+                    rent: "Rent",
+                    utilities: "Utilities",
+                    confirmClear: "Are you sure you want to delete ALL transactions? This cannot be undone.",
+                    exportSuccess: "Data exported successfully!",
+                    transactionAdded: "Transaction added successfully!",
+                    transactionDeleted: "Transaction deleted!",
+                    validationError: "Please enter a valid amount (minimum 0.001 OMR)"
+                },
+                ar: {
+                    appTitle: "برنامج مقهى المال المحترف",
+                    appSubtitle: "تتبع كل ريال، نمِّ عملك",
+                    balance: "الرصيد الحالي",
+                    updated: "تم التحديث في الوقت الحقيقي",
+                    totalIncome: "إجمالي الدخل",
+                    totalExpenses: "إجمالي المصروفات",
+                    todayProgress: "تقدم اليوم",
+                    dailyGoal: "الهدف اليومي: 50 ريال",
+                    quickActions: "إجراءات سريعة",
+                    newSale: "بيع جديد",
+                    newExpense: "مصروف جديد",
+                    quickSalePresets: "إعدادات البيع السريع",
+                    searchPlaceholder: "ابحث في المعاملات...",
+                    allCategories: "كل الفئات",
+                    transactionHistory: "سجل المعاملات",
+                    export: "تصدير",
+                    clear: "مسح",
+                    noTransactions: "لا توجد معاملات بعد",
+                    addFirst: "أضف عملية البيع أو المصروف الأولى",
+                    addTransaction: "إضافة المعاملة",
+                    income: "دخل",
+                    expense: "مصروف",
+                    amount: "المبلغ (ريال)",
+                    category: "الفئة",
+                    description: "الوصف (اختياري)",
+                    sales: "مبيعات",
+                    coffeeBeans: "حبوب القهوة",
+                    milkDairy: "حليب/ألبان",
+                    staff: "الموظفين",
+                    rent: "الإيجار",
+                    utilities: "المرافق",
+                    confirmClear: "هل أنت متأكد أنك تريد حذف جميع المعاملات؟ لا يمكن التراجع عن هذا.",
+                    exportSuccess: "تم تصدير البيانات بنجاح!",
+                    transactionAdded: "تمت إضافة المعاملة بنجاح!",
+                    transactionDeleted: "تم حذف المعاملة!",
+                    validationError: "الرجاء إدخال مبلغ صالح (0.001 ريال كحد أدنى)"
+                }
+            };
+            
+            // Initialize the app
+            initApp();
+            
+            function initApp() {
+                // Set initial theme
+                if (isDarkMode) {
+                    document.documentElement.classList.add('dark');
+                }
+                
+                // Load transactions
+                updateDashboard();
+                renderTransactionList();
+                
+                // Initialize icons
+                lucide.createIcons();
+                
+                // Event Listeners
+                document.getElementById('newSaleBtn').addEventListener('click', () => openTransactionModal('income'));
+                document.getElementById('newExpenseBtn').addEventListener('click', () => openTransactionModal('expense'));
+                floatingActionBtn.addEventListener('click', () => openTransactionModal('income'));
+                closeModalBtn.addEventListener('click', closeTransactionModal);
+                
+                // Transaction type toggle
+                document.getElementById('typeIncome').addEventListener('click', () => setTransactionType('income'));
+                document.getElementById('typeExpense').addEventListener('click', () => setTransactionType('expense'));
+                
+                // Form submission
+                transactionForm.addEventListener('submit', addTransaction);
+                
+                // Quick sale presets
+                document.querySelectorAll('.quick-sale-preset').forEach(btn => {
+                    btn.addEventListener('click', handleQuickSalePreset);
+                });
+                
+                // Theme toggle
+                themeToggle.addEventListener('click', toggleTheme);
+                
+                // Language toggle
+                languageToggle.addEventListener('click', toggleLanguage);
+                
+                // Search and filter
+                searchInput.addEventListener('input', filterTransactions);
+                categoryFilter.addEventListener('change', filterTransactions);
+                
+                // Export and clear buttons
+                exportBtn.addEventListener('click', exportToCSV);
+                clearAllBtn.addEventListener('click', clearAllTransactions);
+                
+                // Close modal on outside click
+                transactionModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeTransactionModal();
+                    }
+                });
+                
+                // Keyboard shortcuts
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') closeTransactionModal();
+                });
+            }
+            
+            // Format OMR currency with 3 decimal places
+            function formatOMR(amount) {
+                const num = parseFloat(amount);
+                return num.toFixed(3).replace(/\d(?=(\d{3})+\.)/g, '$&,') + ' OMR';
+            }
+            
+            // Update dashboard with totals
+            function updateDashboard() {
+                let totalIncome = 0;
+                let totalExpenses = 0;
+                
+                transactions.forEach(transaction => {
+                    if (transaction.type === 'income') {
+                        totalIncome += parseFloat(transaction.amount);
+                    } else {
+                        totalExpenses += parseFloat(transaction.amount);
+                    }
+                });
+                
+                const balance = totalIncome - totalExpenses;
+                
+                currentBalanceEl.innerHTML = `${balance.toFixed(3)} <span class="text-2xl">OMR</span>`;
+                totalIncomeEl.textContent = formatOMR(totalIncome);
+                totalExpensesEl.textContent = formatOMR(totalExpenses);
+                
+                // Update daily sales progress
+                updateDailyProgress();
+                
+                // Save to localStorage
+                localStorage.setItem('coffeeShopTransactionsPro', JSON.stringify(transactions));
+            }
+            
+            // Update daily progress
+            function updateDailyProgress() {
+                const today = new Date().toDateString();
+                const dailyGoal = 50; // 50 OMR daily goal
+                
+                // Calculate today's sales
+                const todaySales = transactions
+                    .filter(t => {
+                        const transactionDate = new Date(t.timestamp).toDateString();
+                        return transactionDate === today && t.type === 'income';
+                    })
+                    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+                
+                // Calculate percentage
+                const percentage = Math.min((todaySales / dailyGoal) * 100, 100);
+                
+                // Update progress bar and text
+                dailyProgressBar.style.width = `${percentage}%`;
+                dailyProgressText.textContent = `${todaySales.toFixed(3)}/${dailyGoal.toFixed(3)} OMR`;
+                
+                // Color coding
+                if (percentage >= 100) {
+                    dailyProgressBar.classList.remove('from-[#D4A574]', 'to-[#3C2A21]');
+                    dailyProgressBar.classList.add('from-green-400', 'to-green-600');
+                } else if (percentage >= 70) {
+                    dailyProgressBar.classList.remove('from-[#D4A574]', 'to-[#3C2A21]');
+                    dailyProgressBar.classList.add('from-yellow-400', 'to-yellow-600');
+                }
+            }
+            
+            // Render transaction list with filtering
+            function renderTransactionList(filteredTransactions = null) {
+                const transactionsToShow = filteredTransactions || transactions;
+                
+                if (transactionsToShow.length === 0) {
+                    emptyStateEl.classList.remove('hidden');
+                    transactionListEl.innerHTML = '';
+                    transactionListEl.appendChild(emptyStateEl);
+                    return;
+                }
+                
+                emptyStateEl.classList.add('hidden');
+                
+                // Sort transactions by timestamp (newest first)
+                transactionsToShow.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                // Clear the list
+                transactionListEl.innerHTML = '';
+                
+                // Add each transaction
+                transactionsToShow.forEach((transaction, index) => {
+                    const transactionEl = document.createElement('div');
+                    transactionEl.className = 'bg-white dark:bg-[#3C2A21] rounded-xl p-4 shadow border border-gray-200 dark:border-gray-700 animate-slide';
+                    
+                    const isIncome = transaction.type === 'income';
+                    const amountClass = isIncome ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+                    const icon = isIncome ? 'arrow-down-circle' : 'arrow-up-circle';
+                    const bgColor = isIncome ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30';
+                    const textColor = isIncome ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300';
+                    
+                    // Format date and time
+                    const date = new Date(transaction.timestamp);
+                    const timeString = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    const dateString = date.toLocaleDateString();
+                    
+                    // Translate category
+                    const categoryText = isArabic ? 
+                        translations.ar[transaction.category.toLowerCase().replace('/', '')] || transaction.category :
+                        transaction.category;
+                    
+                    transactionEl.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-start">
+                                <div class="${bgColor} ${textColor} p-2 rounded-lg ${isArabic ? 'ml-3' : 'mr-3'}">
+                                    <i data-lucide="${icon}" class="w-5 h-5"></i>
+                                </div>
+                                <div class="${isArabic ? 'text-right' : ''}">
+                                    <h4 class="font-medium text-gray-800 dark:text-gray-200">${transaction.description || categoryText}</h4>
+                                    <div class="flex items-center mt-1 ${isArabic ? 'flex-row-reverse' : ''}">
+                                        <span class="text-xs px-2 py-1 rounded-full ${isIncome ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'} ${isArabic ? 'ml-2' : 'mr-2'}">${categoryText}</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">${timeString} • ${dateString}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right ${isArabic ? 'text-left' : ''}">
+                                <div class="font-bold text-lg ${amountClass}">${isIncome ? '+' : '-'} ${formatOMR(transaction.amount)}</div>
+                                <button class="delete-btn mt-2 text-gray-400 hover:text-red-500" data-index="${index}">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    transactionListEl.appendChild(transactionEl);
+                });
+                
+                // Initialize icons for new elements
+                lucide.createIcons();
+                
+                // Add event listeners to delete buttons
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        const transactionId = (filteredTransactions || transactions)[index].id;
+                        deleteTransaction(transactionId);
+                    });
+                });
+            }
+            
+            // Open transaction modal
+            function openTransactionModal(type = 'income') {
+                setTransactionType(type);
+                transactionModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                
+                // Set modal title
+                const modalTitle = document.getElementById('modalTitle');
+                if (isArabic) {
+                    modalTitle.textContent = type === 'income' ? 'إضافة بيع' : 'إضافة مصروف';
+                } else {
+                    modalTitle.textContent = type === 'income' ? 'Add Sale' : 'Add Expense';
+                }
+            }
+            
+            // Close transaction modal
+            function closeTransactionModal() {
+                transactionModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                transactionForm.reset();
+            }
+            
+            // Set transaction type
+            function setTransactionType(type) {
+                currentTransactionType = type;
+                
+                // Update UI
+                const incomeBtn = document.getElementById('typeIncome');
+                const expenseBtn = document.getElementById('typeExpense');
+                
+                if (type === 'income') {
+                    incomeBtn.classList.remove('border-gray-200', 'dark:border-gray-700');
+                    incomeBtn.classList.add('border-green-300', 'dark:border-green-700', 'active');
+                    expenseBtn.classList.remove('border-red-300', 'dark:border-red-700', 'active');
+                    expenseBtn.classList.add('border-gray-200', 'dark:border-gray-700');
+                } else {
+                    expenseBtn.classList.remove('border-gray-200', 'dark:border-gray-700');
+                    expenseBtn.classList.add('border-red-300', 'dark:border-red-700', 'active');
+                    incomeBtn.classList.remove('border-green-300', 'dark:border-green-700', 'active');
+                    incomeBtn.classList.add('border-gray-200', 'dark:border-gray-700');
+                }
+                
+                // Set default category based on type
+                document.getElementById('category').value = type === 'income' ? 'Sales' : 'Coffee Beans';
+            }
+            
+            // Add new transaction
+            function addTransaction(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const amount = parseFloat(document.getElementById('amount').value);
+                const category = document.getElementById('category').value;
+                const description = document.getElementById('description').value || category;
+                
+                // Validation
+                if (!amount || amount < 0.001 || isNaN(amount)) {
+                    alert(isArabic ? translations.ar.validationError : translations.en.validationError);
+                    return;
+                }
+                
+                // Create transaction object
+                const transaction = {
+                    id: Date.now() + Math.random(),
+                    type: currentTransactionType,
+                    amount: amount.toFixed(3),
+                    category: category,
+                    description: description,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Add to transactions array
+                transactions.unshift(transaction);
+                
+                // Update UI
+                updateDashboard();
+                renderTransactionList();
+                
+                // Close modal and reset form
+                closeTransactionModal();
+                
+                // Show success message
+                showNotification(isArabic ? translations.ar.transactionAdded : translations.en.transactionAdded);
+            }
+            
+            // Handle quick sale preset
+            function handleQuickSalePreset(e) {
+                const btn = e.currentTarget;
+                const amount = btn.getAttribute('data-amount');
+                
+                // Create transaction object
+                const transaction = {
+                    id: Date.now() + Math.random(),
+                    type: 'income',
+                    amount: amount,
+                    category: 'Sales',
+                    description: isArabic ? 'بيع سريع' : 'Quick Sale',
+                    timestamp: new Date().toISOString()
+                };
+                
+                transactions.unshift(transaction);
+                updateDashboard();
+                renderTransactionList();
+                
+                // Visual feedback
+                btn.classList.add('scale-95');
+                setTimeout(() => {
+                    btn.classList.remove('scale-95');
+                }, 150);
+                
+                // Show success message
+                showNotification(isArabic ? 'تمت إضافة البيع السريع!' : 'Quick sale added!');
+            }
+            
+            // Delete transaction
+            function deleteTransaction(id) {
+                if (confirm(isArabic ? 'هل تريد حذف هذه المعاملة؟' : 'Delete this transaction?')) {
+                    transactions = transactions.filter(t => t.id !== id);
+                    updateDashboard();
+                    renderTransactionList();
+                    showNotification(isArabic ? translations.ar.transactionDeleted : translations.en.transactionDeleted);
+                }
+            }
+            
+            // Clear all transactions
+            function clearAllTransactions() {
+                if (transactions.length === 0) return;
+                
+                if (confirm(isArabic ? translations.ar.confirmClear : translations.en.confirmClear)) {
+                    transactions = [];
+                    updateDashboard();
+                    renderTransactionList();
+                    showNotification(isArabic ? 'تم مسح جميع المعاملات' : 'All transactions cleared');
+                }
+            }
+            
+            // Filter transactions based on search and category
+            function filterTransactions() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const category = categoryFilter.value;
+                
+                const filtered = transactions.filter(transaction => {
+                    const matchesSearch = searchTerm === '' || 
+                        transaction.description.toLowerCase().includes(searchTerm) ||
+                        transaction.category.toLowerCase().includes(searchTerm);
+                    
+                    const matchesCategory = category === 'all' || transaction.category === category;
+                    
+                    return matchesSearch && matchesCategory;
+                });
+                
+                renderTransactionList(filtered);
+            }
+            
+            // Export to CSV
+            function exportToCSV() {
+                if (transactions.length === 0) {
+                    alert(isArabic ? 'لا توجد بيانات للتصدير' : 'No data to export');
+                    return;
+                }
+                
+                // Create CSV content
+                let csvContent = "data:text/csv;charset=utf-8,";
+                
+                // Add headers
+                const headers = isArabic ? 
+                    ["التاريخ", "الوقت", "النوع", "الفئة", "الوصف", "المبلغ (ريال)"] :
+                    ["Date", "Time", "Type", "Category", "Description", "Amount (OMR)"];
+                csvContent += headers.join(",") + "\n";
+                
+                // Add data rows
+                transactions.forEach(transaction => {
+                    const date = new Date(transaction.timestamp);
+                    const dateStr = date.toLocaleDateString();
+                    const timeStr = date.toLocaleTimeString();
+                    
+                    const type = isArabic ? 
+                        (transaction.type === 'income' ? 'دخل' : 'مصروف') :
+                        transaction.type;
+                    
+                    const category = isArabic ? 
+                        translations.ar[transaction.category.toLowerCase().replace('/', '')] || transaction.category :
+                        transaction.category;
+                    
+                    const row = [
+                        dateStr,
+                        timeStr,
+                        type,
+                        category,
+                        `"${transaction.description}"`,
+                        transaction.amount
+                    ];
+                    
+                    csvContent += row.join(",") + "\n";
+                });
+                
+                // Create download link
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `coffee-shop-transactions-${new Date().toISOString().split('T')[0]}.csv`);
+                document.body.appendChild(link);
+                
+                // Trigger download
+                link.click();
+                document.body.removeChild(link);
+                
+                showNotification(isArabic ? translations.ar.exportSuccess : translations.en.exportSuccess);
+            }
+            
+            // Toggle theme
+            function toggleTheme() {
+                isDarkMode = !isDarkMode;
+                document.documentElement.classList.toggle('dark', isDarkMode);
+                localStorage.setItem('darkMode', isDarkMode);
+                
+                // Update icon
+                lucide.createIcons();
+            }
+            
+            // Toggle language
+            function toggleLanguage() {
+                isArabic = !isArabic;
+                
+                // Update HTML direction
+                document.documentElement.dir = isArabic ? 'rtl' : 'ltr';
+                document.documentElement.lang = isArabic ? 'ar' : 'en';
+                
+                // Update all text content
+                updateTextContent();
+                
+                // Re-render transaction list with new language
+                renderTransactionList();
+                
+                // Update dashboard
+                updateDashboard();
+            }
+            
+            // Update all text content based on current language
+            function updateTextContent() {
+                const lang = isArabic ? 'ar' : 'en';
+                const t = translations[lang];
+                
+                // Update app title and subtitle
+                document.querySelectorAll('.ltr-only, .rtl-only').forEach(el => {
+                    if (el.classList.contains('ltr-only') && !isArabic) {
+                        const key = Object.keys(t).find(k => el.textContent.trim() === translations.en[k]);
+                        if (key) el.textContent = t[key];
+                    } else if (el.classList.contains('rtl-only') && isArabic) {
+                        const key = Object.keys(t).find(k => el.textContent.trim() === translations.ar[k]);
+                        if (key) el.textContent = t[key];
+                    }
+                });
+                
+                // Update placeholders
+                document.querySelectorAll('input, textarea, select').forEach(el => {
+                    if (el.placeholder) {
+                        const key = Object.keys(t).find(k => 
+                            el.placeholder.includes(translations.en[k]) || 
+                            el.placeholder.includes(translations.ar[k])
+                        );
+                        if (key) el.placeholder = t[key];
+                    }
+                });
+                
+                // Update option texts
+                document.querySelectorAll('option').forEach(opt => {
+                    if (opt.textContent) {
+                        const key = Object.keys(t).find(k => 
+                            opt.textContent.trim() === translations.en[k] || 
+                            opt.textContent.trim() === translations.ar[k]
+                        );
+                        if (key) opt.textContent = t[key];
+                    }
+                });
+                
+                // Update modal title
+                const modalTitle = document.getElementById('modalTitle');
+                if (currentTransactionType === 'income') {
+                    modalTitle.textContent = isArabic ? 'إضافة بيع' : 'Add Sale';
+                } else {
+                    modalTitle.textContent = isArabic ? 'إضافة مصروف' : 'Add Expense';
+                }
+                
+                // Update progress text
+                const dailyGoalText = document.querySelectorAll('[id$="dailyGoal"]');
+                dailyGoalText.forEach(el => {
+                    el.textContent = isArabic ? 'الهدف اليومي: 50 ريال' : 'Daily Goal: 50 OMR';
+                });
+            }
+            
+            // Show notification
+            function showNotification(message) {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 ${isArabic ? 'left-4' : 'right-4'} bg-gradient-to-r from-[#D4A574] to-[#3C2A21] text-white px-6 py-3 rounded-xl shadow-xl z-50 animate-fade-in`;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
